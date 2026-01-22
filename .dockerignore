@@ -1,0 +1,68 @@
+# Build artifacts - explicit patterns for better compatibility
+**/bin
+**/obj
+**/out
+**/publish
+bin/
+obj/
+out/
+publish/
+
+# IDE and editors
+**/.vs
+.vs/
+**/.git
+.git/
+**/.idea
+.idea/
+**/.vscode
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+**/packages
+packages/
+
+# Test results
+**/TestResults
+TestResults/
+**/*.trx
+
+# Logs
+**/*.log
+**/logs
+logs/
+
+# Documentation
+**/*.md
+LICENSE
+docs/
+
+# Tests (not needed in production image)
+**/*Tests/
+**/tests/
+
+# Misc
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*.bak
+*.tmp
+
+# Kubernetes manifests
+k8s/
+helm/
+
+# Local settings
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.local.json
+
+# NuGet config with Windows paths
+**/nuget.config
+**/NuGet.Config
+**/*.nuget.props
+**/*.nuget.targets

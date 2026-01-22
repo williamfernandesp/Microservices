@@ -1,0 +1,97 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fcg-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./Fcg.Auth/src/Fcg.Auth.Web/Dockerfile
+    container_name: fcg-auth
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=ep-winter-fire-a8xfwk5s-pooler.eastus2.azure.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_imZ8YXds7qzk;SSL Mode=Require;Trust Server Certificate=true;"
+    ports:
+      - "5000:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  user:
+    build:
+      context: .
+      dockerfile: ./Fcg.User/src/Fcg.User.Web/Dockerfile
+    container_name: fcg-user
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMq__Host: rabbitmq
+      AuthConfiguration__Url: http://auth:8080
+      GamesConfiguration__Url: http://games:8080
+      ConnectionStrings__DefaultConnection: "Host=ep-mute-math-a8omwvwx-pooler.eastus2.azure.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_zbGOlZwJCV89;SSL Mode=Require;Trust Server Certificate=true;"
+    ports:
+      - "5001:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      games:
+        condition: service_started
+
+  games:
+    build:
+      context: .
+      dockerfile: ./Fcg.Games/Fcg.Games.Api/Dockerfile
+    container_name: fcg-games
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      DisableJwt: "true"
+      RabbitMq__Host: rabbitmq
+      PaymentsBaseUrl: http://payment:8080
+      UsersBaseUrl: http://user:8080
+      ConnectionStrings__DefaultConnection: "Host=ep-divine-hat-a8ejsqb5-pooler.eastus2.azure.neon.tech;Port=5432;Database=neondb;Username=neondb_owner;Password=npg_GbxEdOLpe5m6;SSL Mode=Require;Trust Server Certificate=true;"
+      ConnectionStrings__GamesConnection: "Host=ep-divine-hat-a8ejsqb5-pooler.eastus2.azure.neon.tech;Port=5432;Database=neondb;Username=neondb_owner;Password=npg_GbxEdOLpe5m6;SSL Mode=Require;Trust Server Certificate=true;"
+    ports:
+      - "5181:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  payment:
+    build:
+      context: .
+      dockerfile: ./Fcg.Payment/src/Fcg.Payment.Web/Dockerfile
+    container_name: fcg-payment
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMq__Host: rabbitmq
+      UserConfiguration__Url: http://user:8080
+      AuthConfiguration__Url: http://auth:8080
+      GamesConfiguration__Url: http://games:8080
+      ConnectionStrings__DefaultConnection: "Host=ep-sweet-fog-a8968mgw-pooler.eastus2.azure.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_ge3WLVvy5nid;SSL Mode=Require;Trust Server Certificate=true;"
+    ports:
+      - "5002:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      user:
+        condition: service_started
+      games:
+        condition: service_started
