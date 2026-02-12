@@ -6,8 +6,11 @@
 # User-specific files
 *.rsuser
 *.suo
-*.user
+**/*.user
 *.userosscache
+
+# Não ignorar pasta Fcg.User
+!Fcg.User/
 *.sln.docstates
 
 # User-specific files (MonoDevelop/Xamarin Studio)
