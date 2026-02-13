@@ -6,12 +6,13 @@
 # User-specific files
 *.rsuser
 *.suo
-**/*.user
 *.userosscache
-
-# Não ignorar pasta Fcg.User
-!Fcg.User/
 *.sln.docstates
+
+# Ignorar arquivos .user do Visual Studio, mas não a pasta Fcg.User
+**/*.user
+!Fcg.User/
+!Fcg.User/**
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
